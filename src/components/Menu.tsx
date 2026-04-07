@@ -22,7 +22,24 @@ interface MainMenuProps {
   lang: Lang;
 }
 
-
+function MenuLabelWithBadge({
+  label,
+  badge,
+}: {
+  label: string;
+  badge?: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span>{label}</span>
+      {badge ? (
+        <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold leading-none text-secondary-foreground">
+          {badge}
+        </span>
+      ) : null}
+    </span>
+  );
+}
 
 export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -42,7 +59,7 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
       // Restaurar scroll
       document.body.style.overflow = "";
     }
-    
+
     return () => {
       document.body.style.overflow = "";
     };
@@ -64,17 +81,11 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
       {/* =======================
           DESKTOP (lg+)
           ======================= */}
-      <NavigationMenu className="hidden lg:flex w-full mx-auto py-3">
-        <NavigationMenuList className="gap-4">
-          {menu?.menuItems?.map((menuItem: MenuItem, idx: number) => {
+      <NavigationMenu className="hidden lg:flex w-full max-w-8xl mx-auto py-3">
+        <NavigationMenuList className="w-full justify-between gap-4">
+          {menu?.menuItems?.map((menuItem: MenuItem) => {
             const hasChildren =
               Array.isArray(menuItem.item) && menuItem.item.length > 0;
-
-            // Lógica para abrir los menús hacia el lado seguro tempranamente
-            const isRightSide = idx > 1;
-            const contentPosition = isRightSide
-              ? "!left-auto !right-0 !translate-x-0 md:!right-[-1rem]"
-              : "!left-0 !translate-x-0 md:!left-[-1rem]";
 
             return (
               <NavigationMenuItem key={menuItem.id}>
@@ -86,21 +97,30 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                           window.location.href = rewriteUrl(menuItem.link.url, lang);
                         }
                       }}
+                      className="gap-2"
                     >
-                      {menuItem.link.label}
+                      <MenuLabelWithBadge
+                        label={menuItem.link.label}
+                        badge={menuItem.link.badge}
+                      />
                     </NavigationMenuTrigger>
 
-                    <NavigationMenuContent className={contentPosition}>
-                      <ul className="grid w-[320px] gap-x-3 gap-y-1 mt-1 p-1 md:w-max md:grid-flow-col md:grid-rows-4 md:auto-cols-[210px]">
+                    <NavigationMenuContent>
+                      <ul className="grid w-full gap-x-3 gap-y-1 mt-1 p-1 md:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
                         {menuItem.item.map((subItem: Link) => (
                           <li key={subItem.id}>
                             <NavigationMenuLink asChild>
                               <a
                                 href={rewriteUrl(subItem.url, lang)}
-                                className="group flex items-center gap-3 rounded-sm px-4 py-3 text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-primary/5 hover:text-primary hover:-translate-y-0.5 hover:shadow-sm border border-transparent hover:border-primary/10"
+                                className="group flex min-w-0 items-center gap-3 rounded-sm border border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-primary/5 hover:text-primary hover:shadow-sm "
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-200 group-hover:bg-primary transition-colors flex-shrink-0"></span>
                                 <span className="truncate">{subItem.label}</span>
+                                {subItem.badge ? (
+                                  <span className="inline-flex items-center whitespace-nowrap rounded-sm bg-secondary px-2 py-2 text-[10px] font-semibold leading-none text-secondary-foreground">
+                                    {subItem.badge}
+                                  </span>
+                                ) : null}
                               </a>
                             </NavigationMenuLink>
                           </li>
@@ -112,9 +132,12 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                   <NavigationMenuLink asChild>
                     <a
                       href={rewriteUrl(menuItem.link.url, lang)}
-                      className="px-4 py-2 text-base font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-base font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
                     >
-                      {menuItem.link.label}
+                      <MenuLabelWithBadge
+                        label={menuItem.link.label}
+                        badge={menuItem.link.badge}
+                      />
                     </a>
                   </NavigationMenuLink>
                 )}
@@ -178,7 +201,7 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
               aria-hidden="true"
             />
             {/* Menu items */}
-            <div 
+            <div
               id="mobile-menu"
               className="absolute top-[64px] left-0 w-full z-50 bg-background pb-4 rounded-b-lg"
               role="navigation"
@@ -208,10 +231,13 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                       ) : (
                         <a
                           href={rewriteUrl(menuItem.link.url, lang)}
-                          className="block py-3 font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
+                          className="inline-flex items-center gap-2 py-3 font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
                           onClick={() => setMobileOpen(false)}
                         >
-                          {menuItem.link.label}
+                          <MenuLabelWithBadge
+                            label={menuItem.link.label}
+                            badge={menuItem.link.badge}
+                          />
                         </a>
                       )}
                     </li>
@@ -243,14 +269,13 @@ function MobileAccordion({ item, closeMenu, lang }: MobileAccordionProps) {
       {/* TÍTULO = TOGGLE */}
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-3 font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
+        className="flex w-full items-center gap-2 py-3 font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
         aria-expanded={open}
       >
-        {item.link.label}
+        <MenuLabelWithBadge label={item.link.label} badge={item.link.badge} />
         <ChevronDown
           size={18}
-          className={`transition-transform ${open ? "rotate-180" : ""
-            }`}
+          className={`ml-auto transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -261,10 +286,15 @@ function MobileAccordion({ item, closeMenu, lang }: MobileAccordionProps) {
             <li key={subItem.id}>
               <a
                 href={rewriteUrl(subItem.url, lang)}
-                className="block rounded px-2 py-1.5 text-sm text-foreground/60 transition-colors duration-200 hover:text-primary"
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-foreground/60 transition-colors duration-200 hover:text-primary"
                 onClick={closeMenu}
               >
-                {subItem.label}
+                <span className="truncate">{subItem.label}</span>
+                {subItem.badge ? (
+                  <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold leading-none text-secondary-foreground">
+                    {subItem.badge}
+                  </span>
+                ) : null}
               </a>
             </li>
           ))}

@@ -63,7 +63,7 @@ function NavigationMenuItem({
   return (
     <NavigationMenuPrimitive.Item
       data-slot="navigation-menu-item"
-      className={cn("relative", className)} // 👈 CLAVE
+      className={cn("static", className)}
       {...props}
     />
   )
@@ -109,11 +109,7 @@ function NavigationMenuContent({
     <NavigationMenuPrimitive.Content
       data-slot="navigation-menu-content"
       className={cn(
-        // Posicionamiento CORRECTO
-        "absolute left-1/2 top-full z-50 -translate-x-1/2 mt-2",
-
-        // Estilo
-        "w-max min-w-[220px] rounded-md bg-white p-4 shadow-lg",
+        "absolute left-0 right-0 top-full z-50 mt-2 w-full rounded-md bg-white p-4 shadow-lg",
 
         // Animaciones suaves
         "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out",

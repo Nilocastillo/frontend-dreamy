@@ -8,6 +8,7 @@ import type { Global } from "@/interface/global";
 import { LANGS, DEFAULT_LANG, isValidLang } from "@/lib/i18n";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton.astro";
 import { rewriteMenuUrls } from "@/lib/utils";
 import SEO from "@/components/SEO.astro";
 import type { SEOProps } from "@/components/SEO.astro";
@@ -85,5 +86,6 @@ const seoProps = seo || {
 			<slot />
 		</main>
 		<Footer data={globalData?.footer} />
+		<WhatsAppFloatingButton />
 	</body>
 </html>

@@ -19,6 +19,7 @@ export interface Link {
   isButton: boolean;
   isExternal: boolean;
   type?: "PRIMARY" | "SECONDARY";
+  badge?: string;
 }
 
 /** shared.logo-link — logo con imagen y link */
