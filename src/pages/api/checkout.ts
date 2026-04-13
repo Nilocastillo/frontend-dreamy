@@ -1,10 +1,12 @@
 import type { APIRoute } from "astro";
 
+export const prerender = false;
+
 export const POST: APIRoute = async ({ request }) => {
   // Dynamic import de Resend solo cuando se necesita
   let resend = null;
-  const resendApiKey = import.meta.env.VITE_RESEND_API_KEY || process.env.RESEND_API_KEY;
-  
+  const resendApiKey = import.meta.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
+
   if (resendApiKey) {
     try {
       const { Resend } = await import("resend");
@@ -15,9 +17,26 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    const data = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return new Response(JSON.stringify({ error: "Content-Type must be application/json" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const rawBody = await request.text();
+    if (!rawBody.trim()) {
+      return new Response(JSON.stringify({ error: "Empty request body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const data = JSON.parse(rawBody);
 
     const { passengersInfo, contactInfo, cart } = data;
+    const passengers = Array.isArray(passengersInfo) ? passengersInfo : [];
 
     console.log("Checkout API received:", { passengersInfo, contactInfo, cart });
 
@@ -38,15 +57,18 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    let emailSent = false;
+    let emailError: string | null = null;
+
     // 1. Enviar Email con Resend solo si esta configurado
     if (resend && contactInfo.email) {
-      try {
-        const emailResult = await resend.emails.send({
-           from: "Reservas Dreamy Tours <reservas@tudominio.com>", // Configura esto con un dominio verificado en Resend
-           to: [contactInfo.email],
-           bcc: ["info@dreamy.tours"], // Se enviará una copia a la agencia
-           subject: `Reserva Confirmada: ${cart.tourName}`,
-           html: `
+      const { data: emailData, error: resendError } = await resend.emails.send({
+        from: "Reservas Turismoperu <reservas@turismoperu.com.pe>",
+        to: ["info@turismoperu.com.pe"],
+        //bcc: [contactInfo.email], // Se enviará una copia a la agencia
+        subject: `Reserva Confirmada: ${cart.tourName}`,
+        replyTo: contactInfo.email,
+        html: `
              <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
                <h2>Detalles de la Reserva</h2>
                <p><strong>Tour:</strong> ${cart.tourName}</p>
@@ -68,22 +90,26 @@ export const POST: APIRoute = async ({ request }) => {
 
                <h3>Información de los Pasajeros (Travelers)</h3>
                <ul>
-                 ${passengersInfo.map((p: any, i: number) => 
-                   `<li style="margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 6px;">
+                 ${passengers.map((p: any, i: number) =>
+            `<li style="margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 6px;">
                       <strong style="color: #6d28d9;">Pasajero ${i + 1}:</strong> ${p.name} ${p.lastname}<br/>
                       <strong>Género:</strong> ${p.gender} | 
                       <strong>Fecha de Nacimiento:</strong> ${p.dob} | 
                       <strong>País Emisor:</strong> ${p.country}<br/>
                       <strong>${p.documentType}:</strong> ${p.documentNumber}
                    </li>`
-                 ).join('')}
+          ).join('')}
                </ul>
              </div>
            `
-        });
-        console.log("Resend email sent:", emailResult);
-      } catch (emailError) {
-        console.error("Resend Error:", emailError);
+      });
+
+      if (resendError) {
+        emailError = resendError.message;
+        console.error("Resend Error:", resendError);
+      } else {
+        emailSent = true;
+        console.log("Resend email sent:", emailData);
       }
     } else {
       console.log("Resend not configured, skipping email");
@@ -91,16 +117,20 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 2. Armar la URL de PayPal
     // IMPORTANTE: Actualizar este correo al correo oficial de tu cuenta PayPal de negocio
-    const businessEmail = "info@dreamy.tours"; 
+    const businessEmail = "info@turismoperu.com.pe";
     const itemName = encodeURIComponent(cart.tourName);
-    const amount = cart.totalPrice.toFixed(2);
+    const totalPrice = Number(cart.totalPrice);
+    if (!Number.isFinite(totalPrice)) {
+      throw new Error("Invalid cart.totalPrice value");
+    }
+    const amount = totalPrice.toFixed(2);
     const returnUrl = encodeURIComponent(`${new URL(request.url).origin}/checkout/success`);
-    
+
     const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${businessEmail}&item_name=${itemName}&amount=${amount}&currency_code=USD&return=${returnUrl}`;
 
     console.log("PayPal URL generated:", paypalUrl);
 
-    return new Response(JSON.stringify({ success: true, redirectUrl: paypalUrl }), {
+    return new Response(JSON.stringify({ success: true, emailSent, emailError, redirectUrl: paypalUrl }), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });

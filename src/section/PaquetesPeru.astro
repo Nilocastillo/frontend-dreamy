@@ -37,64 +37,152 @@ if (data.category?.slug) {
 }
 
 if (tours.length === 0) return;
+const badgeText =
+  {
+    en: "Adventure Awaits",
+    es: "La Aventura te Espera",
+    pt: "A Aventura te Espera",
+  }[lang] || "Adventure Awaits";
+
+const availabilityText = {
+  en: { title: "Check Availability", subtitle: "Book your adventure" },
+  es: { title: "Consultar Disponibilidad", subtitle: "Reserva tu aventura" },
+  pt: { title: "Verificar Disponibilidade", subtitle: "Reserve sua aventura" },
+}[lang] || { title: "Check Availability", subtitle: "Book your adventure" };
 ---
 
 <section class="w-full py-20 md:py-28">
   <div class="max-w-8xl mx-auto px-6">
-    <div class="mb-14 md:mb-20 text-center">
-      <h2
-        class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 relative inline-block"
-      >
-        <span class="relative z-10">{data.titulo}</span>
-        <span
-          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-3 bg-secondary/30 -z-0 rounded-full blur-sm"
-        ></span>
-      </h2>
-      <div class="flex items-center justify-center gap-3 mt-4">
+    <div
+      class="mb-14 md:mb-20 flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-between"
+    >
+      {/* Lado izquierdo */}
+      <div class="max-w-3xl flex-1 text-left">
         <div
-          class="h-[1px] w-16 bg-gradient-to-r from-transparent to-secondary"
+          class="flex w-fit items-center gap-2 px-3 py-1 bg-secondary/15 text-secondary text-sm font-semibold rounded-full mb-4"
         >
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+              clip-rule="evenodd"></path>
+          </svg>
+          {badgeText}
         </div>
-        <div class="w-12 h-1.5 bg-secondary rounded-full relative">
+
+        <h2
+          class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 relative inline-block"
+        >
+          <span class="relative z-10">{data.titulo}</span>
+          <span
+            class="absolute bottom-0 left-0 w-24 h-3 bg-secondary/30 -z-0 rounded-full blur-sm"
+          ></span>
+        </h2>
+
+        <div class="flex items-center justify-start gap-3 mt-4 mb-6">
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"
+            class="h-[1px] w-16 bg-gradient-to-r from-transparent to-secondary"
+          >
+          </div>
+          <div class="w-12 h-1.5 bg-secondary rounded-full relative">
+            <div
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"
+            >
+            </div>
+          </div>
+          <div
+            class="h-[1px] w-16 bg-gradient-to-l from-transparent to-secondary"
           >
           </div>
         </div>
-        <div
-          class="h-[1px] w-16 bg-gradient-to-l from-transparent to-secondary"
-        >
-        </div>
+
+        {
+          (data as any).description ? (
+            <p class="text-gray-600 leading-relaxed text-base">
+              {(data as any).description}
+            </p>
+          ) : (
+            <p class="text-gray-600 leading-relaxed text-base">
+              The ancestral trails of the Andes are waiting for you to live a
+              transforming experience. Each route is a unique adventure,
+              designed for different levels of experience and physical
+              condition. Our guides will accompany you every step of the way,
+              sharing stories, knowledge and guaranteeing a safe and memorable
+              experience.
+            </p>
+          )
+        }
       </div>
+
+      {/* Lado derecho (Card con el Botón) */}
+      {
+        data.category?.slug && (
+          <div class="w-full lg:w-[380px] shrink-0 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl p-6 border-l-[6px] border-secondary flex flex-col justify-center">
+            <div class="flex items-center gap-4 mb-5">
+              <div class="w-12 h-12 bg-secondary/90 rounded-full flex items-center justify-center text-white shadow-md">
+                <svg
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-900 text-[1.05rem]">
+                  {availabilityText.title}
+                </h3>
+                <p class="text-[0.85rem] text-gray-500">
+                  {availabilityText.subtitle}
+                </p>
+              </div>
+            </div>
+            <a
+              href={`/${lang}/${data.category.slug}`}
+              aria-label={t("aria.verMasSeccion")}
+              class="w-full flex justify-between items-center border-secondary border hover:text-white hover:bg-secondary text-secondary bg-secondary/10 font-semibold py-3.5 px-5 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:border-transparent"
+            >
+              <div class="flex items-center gap-2">
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>{t("section.verMas")}</span>
+              </div>
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </a>
+          </div>
+        )
+      }
     </div>
 
     <ToursSlider tours={tours} lang={lang} />
-
-    {/* Botón ver más */}
-    {
-      data.category?.slug && (
-        <div class="text-center mt-12">
-          <a
-            href={`/${lang}/${data.category.slug}`}
-            aria-label={t("aria.verMasSeccion")}
-            class="inline-flex items-center gap-2 px-12 py-5 bg-transparent text-secondary font-bold text-lg rounded-full border-2 border-secondary hover:bg-secondary hover:text-white transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
-          >
-            {t("section.verMas")}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-6 h-6"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
-        </div>
-      )
-    }
   </div>
 </section>

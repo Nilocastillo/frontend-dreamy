@@ -14,12 +14,12 @@ const { tours, lang } = Astro.props;
 <div class="relative">
   <!-- Slider Container - horizontal scroll -->
   <div
-    class="flex gap-6 overflow-x-auto py-4 snap-x snap-mandatory scrollbar-hide"
+    class="flex gap-6 overflow-x-auto py-4 snap-x snap-mandatory items-stretch scrollbar-hide"
     id={`slider-${Math.random().toString(36).substr(2, 9)}`}
   >
     {
       tours.map((tour) => (
-        <div class="flex-shrink-0 w-[85%] md:w-[45%] lg:w-[31%] snap-center">
+        <div class="flex-shrink-0 w-[85%] md:w-[45%] lg:w-[24%] snap-center">
           <TourCard tour={tour} lang={lang} />
         </div>
       ))

@@ -115,7 +115,15 @@ export default function CheckoutSummary() {
           contactInfo: contact
         }),
       });
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json')
+        ? await response.json()
+        : { error: await response.text() };
+
+      if (!response.ok) {
+        throw new Error(data.error || `Checkout failed with status ${response.status}`);
+      }
+
       if (data.success && data.redirectUrl) {
         window.localStorage.removeItem("bookingCart");
         window.location.href = data.redirectUrl;
@@ -123,7 +131,8 @@ export default function CheckoutSummary() {
         alert("Error Processing Checkout: " + (data.error || "Unknown"));
       }
     } catch (err) {
-      alert("Network Error");
+      const message = err instanceof Error ? err.message : "Network Error";
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }

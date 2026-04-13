@@ -7,6 +7,7 @@ import About from "@/section/About.astro";
 import Certifications from "@/section/Certifications.astro";
 import Machupicchu from "@/section/Machupicchu.astro";
 import PaquetesPeru from "@/section/PaquetesPeru.astro";
+import PeruGuide from "@/section/PeruGuide.astro";
 import PaquetesBolivia from "@/section/PaquetesBolivia.astro";
 import HomePost from "@/section/HomePost.astro";
 import { LANGS, DEFAULT_LANG, isValidLang } from "@/lib/i18n";
@@ -51,6 +52,7 @@ const seoProps = buildSEOProps({
   <Certifications data={homeData?.premios?.premios} lang={lang} />
   <Machupicchu data={homeData?.sectionMapi} lang={lang} />
   <PaquetesPeru data={homeData?.peruPaquetes} lang={lang} />
+  <PeruGuide lang={lang} />
   <PaquetesBolivia data={homeData?.boliviaPaquetes} lang={lang} />
   <HomePost data={homeData?.cardPost} lang={lang} />
 </Layout>

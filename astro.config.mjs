@@ -8,9 +8,12 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://turismo-peru-bolivia.com', // TODO: Cambiar por el dominio real
+
+  server: {
+    allowedHosts: true,
+  },
   vite: {
-      plugins: [tailwindcss()],
+    plugins: [tailwindcss()],
   },
 
   integrations: [

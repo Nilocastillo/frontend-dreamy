@@ -19,112 +19,278 @@ const contentParagraphs = data.content
   .filter(Boolean);
 
 const eyebrowByLang: Record<Lang, string> = {
-  en: "Who we are",
-  es: "Quiénes somos",
-  pt: "Quem somos",
+  en: "100% Local Tour",
+  es: "Tour 100% Local",
+  pt: "Tour 100% Local",
+};
+
+const buttonByLang: Record<Lang, string> = {
+  en: "Discover Our Tours",
+  es: "Descubre Nuestros Tours",
+  pt: "Descubra Nossos Tours",
+};
+
+const features = {
+  en: [
+    {
+      title: "Excellence Service",
+      desc: "Highest quality standards",
+      icon: "check",
+      color: "green",
+    },
+    {
+      title: "Personalized Attention",
+      desc: "Customized experiences",
+      icon: "badge",
+      color: "yellow",
+    },
+    {
+      title: "Safety & Reliability",
+      desc: "Operational excellence",
+      icon: "star",
+      color: "green",
+    },
+    {
+      title: "Responsible Tourism",
+      desc: "Protecting environment",
+      icon: "heart",
+      color: "yellow",
+    },
+  ],
+  es: [
+    {
+      title: "Servicio de Excelencia",
+      desc: "Los más altos estándares",
+      icon: "check",
+      color: "green",
+    },
+    {
+      title: "Atención Personalizada",
+      desc: "Experiencias a medida",
+      icon: "badge",
+      color: "yellow",
+    },
+    {
+      title: "Seguridad y Confianza",
+      desc: "Excelencia operativa",
+      icon: "star",
+      color: "green",
+    },
+    {
+      title: "Turismo Responsable",
+      desc: "Protección ambiental",
+      icon: "heart",
+      color: "yellow",
+    },
+  ],
+  pt: [
+    {
+      title: "Serviço de Excelência",
+      desc: "Padrões de alta qualidade",
+      icon: "check",
+      color: "green",
+    },
+    {
+      title: "Atenção Personalizada",
+      desc: "Experiências sob medida",
+      icon: "badge",
+      color: "yellow",
+    },
+    {
+      title: "Segurança e Confiança",
+      desc: "Excelência operacional",
+      icon: "star",
+      color: "green",
+    },
+    {
+      title: "Turismo Responsável",
+      desc: "Proteção ambiental",
+      icon: "heart",
+      color: "yellow",
+    },
+  ],
 };
 ---
 
-<section class="w-full border-y border-[#181311]/6 bg-primary/5">
-  <div class="mx-auto max-w-8xl px-6 py-16 md:py-20 lg:py-28">
-    <div
-      class="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-20"
-    >
-      <div class="w-full max-w-2xl">
+<section class="relative w-full overflow-hidden bg-[#fafqfa] py-16 md:py-24">
+  <!-- Fondos decorativos -->
+  <div
+    class="pointer-events-none absolute -left-48 -top-48 h-96 w-96 rounded-full bg-[#10b981]/5 blur-3xl"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute -bottom-48 -right-48 h-96 w-96 rounded-full bg-[#fbbf24]/10 blur-3xl"
+  >
+  </div>
+
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
+      {/* Lado de texto */}
+      <div class="relative z-10 w-full max-w-2xl">
         <div
-          class="mb-5 inline-flex items-center gap-3 rounded-sm border border-secondary/15 bg-white/80 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-[#181311]/60 shadow-[0_14px_40px_-28px_rgba(24,19,17,0.45)] backdrop-blur-sm"
+          class="mb-6 inline-flex items-center gap-2 rounded-full bg-[#10b981]/10 px-3 py-1.5 text-xs font-semibold text-[#10b981]"
         >
-          <span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
-          <span>{eyebrowByLang[lang]}</span>
+          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+              clip-rule="evenodd"></path>
+          </svg>
+          <span class="uppercase tracking-wider">{eyebrowByLang[lang]}</span>
         </div>
 
         <h2
-          class="max-w-3xl text-[clamp(2rem,4vw,3.25rem)] font-medium leading-[1.05] text-[#181311]"
+          class="text-4xl font-bold tracking-tight text-[#181311] sm:text-5xl"
         >
           {data.titulo}
         </h2>
 
-        <div
-          class="mt-5 h-px w-20 bg-linear-to-r from-secondary/75 via-secondary/25 to-transparent"
-        >
+        {/* Decoración de subrayado */}
+        <div class="mt-4 flex h-1 w-24 overflow-hidden rounded-full">
+          <div class="h-full w-1/2 bg-[#10b981]"></div>
+          <div class="h-full w-1/2 bg-[#fbbf24]"></div>
         </div>
 
-        <div class="mt-8 space-y-5">
+        <div class="mt-8 space-y-4">
           {
-            contentParagraphs.length > 1 ? (
+            contentParagraphs.length > 0 ? (
               contentParagraphs.map((paragraph) => (
-                <p class="max-w-xl text-base leading-8 text-[#181311]/72">
-                  {paragraph}
-                </p>
+                <p
+                  class="text-base leading-relaxed text-[#181311]/70"
+                  set:html={paragraph
+                    .replace(
+                      /DREAMY TOURS/g,
+                      '<strong class="text-[#10b981] font-bold">DREAMY TOURS</strong>',
+                    )
+                    .replace(
+                      /Peru and Bolivia/g,
+                      '<strong class="text-[#10b981] font-bold">Peru and Bolivia</strong>',
+                    )
+                    .replace(
+                      /responsible tourism/g,
+                      '<strong class="text-[#10b981] font-bold">responsible tourism</strong>',
+                    )}
+                />
               ))
             ) : (
-              <p class="max-w-xl text-base leading-8 text-[#181311]/72">
+              <p class="text-base leading-relaxed text-[#181311]/70">
                 {data.content}
               </p>
             )
           }
         </div>
 
-        <div class="mt-10 grid gap-3 sm:grid-cols-3">
-          <div
-            class="rounded-sm border border-[#181311]/8 bg-white/75 px-4 py-4 shadow-[0_20px_50px_-34px_rgba(24,19,17,0.28)]"
-          >
-            <p
-              class="text-[0.68rem] font-semibold uppercase tracking-[0.26em] text-secondary/80"
-            >
-              01
-            </p>
-            <p class="mt-2 text-sm font-medium text-[#181311]/82">
-              Atención cercana
-            </p>
-          </div>
-          <div
-            class="rounded-sm border border-[#181311]/8 bg-white/75 px-4 py-4 shadow-[0_20px_50px_-34px_rgba(24,19,17,0.28)]"
-          >
-            <p
-              class="text-[0.68rem] font-semibold uppercase tracking-[0.26em] text-secondary/80"
-            >
-              02
-            </p>
-            <p class="mt-2 text-sm font-medium text-[#181311]/82">
-              Cuidado en los detalles
-            </p>
-          </div>
-          <div
-            class="rounded-sm border border-[#181311]/8 bg-white/75 px-4 py-4 shadow-[0_20px_50px_-34px_rgba(24,19,17,0.28)]"
-          >
-            <p
-              class="text-[0.68rem] font-semibold uppercase tracking-[0.26em] text-secondary/80"
-            >
-              03
-            </p>
-            <p class="mt-2 text-sm font-medium text-[#181311]/82">
-              Experiencia con criterio
-            </p>
-          </div>
+        {/* Features en grid 2x2 */}
+        <div class="mt-10 grid gap-6 sm:grid-cols-2">
+          {
+            features[lang].map((act) => (
+              <div class="flex items-start gap-4">
+                <div
+                  class={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${act.color === "green" ? "bg-[#10b981]/15 text-[#10b981]" : "bg-[#fbbf24]/15 text-[#fbbf24]"}`}
+                >
+                  {act.icon === "check" && (
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                  {act.icon === "badge" && (
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                      />
+                    </svg>
+                  )}
+                  {act.icon === "star" && (
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-1.182-1.985l1.31-5.5a.562.562 0 01.815-.595l4.636 2.502a.563.563 0 00.814-.595l-1.314-5.467a.563.563 0 00-.472-.41L13.16 3.03zm-7.66 0c0-.85.99-1.32 1.63-.78l3.18 3.18a.563.563 0 00.78 0l3.18-3.18c.64-.54 1.63-.07 1.63.78v8.66c0 .85-.99 1.32-1.63.78l-3.18-3.18a.563.563 0 00-.78 0l-3.18 3.18c-.64.54-1.63.07-1.63-.78V3.5z"
+                      />
+                    </svg>
+                  )}
+                  {act.icon === "heart" && (
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <div class="pt-0.5">
+                  <h3 class="text-sm font-bold text-[#181311]">{act.title}</h3>
+                  <p class="mt-1 text-xs text-[#181311]/70">{act.desc}</p>
+                </div>
+              </div>
+            ))
+          }
         </div>
       </div>
 
+      {/* Lado de imagen */}
       {
         data.imagen && (
-          <div class="relative w-full">
-            <div
-              aria-hidden="true"
-              class="pointer-events-none absolute inset-4 rounded-sm border border-[#181311]/8 bg-white shadow-[0_30px_100px_-55px_rgba(24,19,17,0.18)] md:inset-6"
-            />
+          <div class="relative w-full max-w-xl mx-auto lg:ml-auto lg:mr-0 z-10 pt-4 pr-4">
+            {/* Marco rotado de fondo */}
+            <div class="absolute inset-0 bg-[#10b981]/15 rounded-3xl -rotate-3 transform-gpu w-full h-full" />
 
-            <div class="relative overflow-hidden rounded-sm border border-[#181311]/10 bg-white shadow-[0_28px_80px_-48px_rgba(24,19,17,0.24)]">
-              <div class="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-sm border border-white/70 bg-white/88 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.26em] text-[#181311]/72 shadow-[0_14px_28px_-18px_rgba(24,19,17,0.45)] backdrop-blur-md md:left-5 md:top-5">
-                <span class="h-1.5 w-1.5 rounded-full bg-secondary" />
-                <span>Dreamy Tours Team</span>
-              </div>
-              <div class="absolute inset-0 bg-linear-to-t from-[#181311]/10 via-transparent to-transparent" />
+            <div class="relative overflow-hidden rounded-3xl border-4 border-white bg-white shadow-xl">
+              <div class="absolute inset-0 bg-linear-to-t from-[#181311]/40 via-transparent to-transparent z-10" />
               <img
                 src={imagenUrl}
                 alt={imageAlt}
-                class="aspect-[16/9] w-full object-cover object-center"
+                class="aspect-[4/3] w-full object-cover object-center"
                 loading="lazy"
               />
+            </div>
+
+            {/* Widget flotante +500 Happy Travelers */}
+            <div class="absolute -bottom-6 -left-6 z-20 flex items-center gap-4 rounded-xl bg-white p-4 pr-6 shadow-2xl ring-1 ring-black/5">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#10b981] text-white">
+                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold leading-tight text-[#181311]">
+                  +500
+                </span>
+                <span class="text-xs font-medium text-[#181311]/60">
+                  Happy Travelers
+                </span>
+              </div>
             </div>
           </div>
         )
