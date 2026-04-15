@@ -43,7 +43,6 @@ function MenuLabelWithBadge({
 
 export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const logoUrl = rewriteUrl(logo?.url || "/", lang);
@@ -97,7 +96,6 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                           window.location.href = rewriteUrl(menuItem.link.url, lang);
                         }
                       }}
-                      className="gap-2"
                     >
                       <MenuLabelWithBadge
                         label={menuItem.link.label}
@@ -109,15 +107,14 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                       <ul className="grid w-full gap-x-3 gap-y-1 mt-1 p-1 md:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
                         {menuItem.item.map((subItem: Link) => (
                           <li key={subItem.id}>
-                            <NavigationMenuLink asChild>
+                            <NavigationMenuLink asChild variant="dropdown">
                               <a
                                 href={rewriteUrl(subItem.url, lang)}
-                                className="group flex min-w-0 items-center gap-3 rounded-sm border border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-primary/5 hover:text-primary hover:shadow-sm "
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-200 group-hover:bg-primary transition-colors flex-shrink-0"></span>
-                                <span className="truncate">{subItem.label}</span>
+                                <span className="truncate text-foreground">{subItem.label}</span>
                                 {subItem.badge ? (
-                                  <span className="inline-flex items-center whitespace-nowrap rounded-sm bg-secondary px-2 py-2 text-[10px] font-semibold leading-none text-secondary-foreground">
+                                  <span className="inline-flex items-center whitespace-nowrap rounded-sm bg-secondary px-2 py-2 text-[10px] font-bold leading-none text-secondary-foreground">
                                     {subItem.badge}
                                   </span>
                                 ) : null}
@@ -132,7 +129,6 @@ export default function MainMenu({ menu, logo, lang }: MainMenuProps) {
                   <NavigationMenuLink asChild>
                     <a
                       href={rewriteUrl(menuItem.link.url, lang)}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-base font-medium text-foreground/80 transition-colors duration-200 hover:text-primary"
                     >
                       <MenuLabelWithBadge
                         label={menuItem.link.label}

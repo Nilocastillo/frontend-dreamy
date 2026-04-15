@@ -21,16 +21,16 @@ function NavigationMenu({
     <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
       data-viewport={viewport}
-      className={cn(
-        "relative flex max-w-max flex-1 items-center justify-center",
-        className
-      )}
+      className={cn(navigationMenuRootStyle, className)}
       {...props}
     >
       {children}
     </NavigationMenuPrimitive.Root>
   )
 }
+
+const navigationMenuRootStyle =
+  "relative flex max-w-max flex-1 items-center justify-center"
 
 /* -------------------------------------------------------------------------- */
 /* LIST                                                                       */
@@ -43,14 +43,13 @@ function NavigationMenuList({
   return (
     <NavigationMenuPrimitive.List
       data-slot="navigation-menu-list"
-      className={cn(
-        "flex list-none items-center gap-1",
-        className
-      )}
+      className={cn(navigationMenuListStyle, className)}
       {...props}
     />
   )
 }
+
+const navigationMenuListStyle = "flex list-none items-center gap-1"
 
 /* -------------------------------------------------------------------------- */
 /* ITEM                                                                       */
@@ -63,18 +62,20 @@ function NavigationMenuItem({
   return (
     <NavigationMenuPrimitive.Item
       data-slot="navigation-menu-item"
-      className={cn("static", className)}
+      className={cn(navigationMenuItemStyle, className)}
       {...props}
     />
   )
 }
+
+const navigationMenuItemStyle = "static"
 
 /* -------------------------------------------------------------------------- */
 /* TRIGGER                                                                    */
 /* -------------------------------------------------------------------------- */
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 items-center justify-center rounded-md bg-background px-4 py-2 text-base font-medium text-foreground/80 transition-colors duration-200 hover:text-primary focus:text-primary focus:outline-none"
+  "group inline-flex h-9 items-center justify-center gap-2 rounded-md bg-background px-4 py-2 text-md font-medium text-foreground transition-colors duration-200 hover:text-primary focus:text-primary focus:outline-none"
 )
 
 function NavigationMenuTrigger({
@@ -109,7 +110,7 @@ function NavigationMenuContent({
     <NavigationMenuPrimitive.Content
       data-slot="navigation-menu-content"
       className={cn(
-        "absolute left-0 right-0 top-full z-50 mt-2 w-full rounded-md bg-white p-4 shadow-lg",
+        navigationMenuContentStyle,
 
         // Animaciones suaves
         "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out",
@@ -124,25 +125,44 @@ function NavigationMenuContent({
   )
 }
 
+const navigationMenuContentStyle =
+  "absolute left-0 right-0 top-full z-50 mt-2 w-full rounded-md bg-white p-4 shadow-lg"
+
 /* -------------------------------------------------------------------------- */
 /* LINK                                                                       */
 /* -------------------------------------------------------------------------- */
 
 function NavigationMenuLink({
   className,
+  variant = "default",
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Link>) {
+}: React.ComponentProps<typeof NavigationMenuPrimitive.Link> & {
+  variant?: "default" | "dropdown"
+}) {
   return (
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
-      className={cn(
-        "flex rounded-sm p-2 text-sm text-foreground/80 transition-colors duration-200 hover:text-primary focus:text-primary focus:outline-none",
-        className
-      )}
+      className={cn(navigationMenuLinkStyle({ variant }), className)}
       {...props}
     />
   )
 }
+
+const navigationMenuLinkStyle = cva(
+  "text-foreground/80 transition-colors duration-200 hover:text-primary focus:text-primary focus:outline-none",
+  {
+    variants: {
+      variant: {
+        default: "inline-flex items-center gap-2 px-4 py-2 text-base font-medium",
+        dropdown:
+          "group flex min-w-0 items-center gap-3 rounded-sm border border-transparent px-4 py-3 text-sm font-medium text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-primary/5 hover:text-primary hover:shadow-sm",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
 
 export {
@@ -152,5 +172,10 @@ export {
   NavigationMenuTrigger,
   NavigationMenuContent,
   NavigationMenuLink,
+  navigationMenuRootStyle,
+  navigationMenuListStyle,
+  navigationMenuItemStyle,
+  navigationMenuContentStyle,
   navigationMenuTriggerStyle,
+  navigationMenuLinkStyle,
 }

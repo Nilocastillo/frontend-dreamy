@@ -3,6 +3,7 @@ import TourLayout from "@/layouts/TourLayout.astro";
 import PageLayout from "@/layouts/PageLayout.astro";
 import Layout from "@/layouts/main.astro";
 import fetchApi from "@/lib/strapi";
+import { dedupeLocalizedDocuments } from "@/lib/utils";
 import type { Tour } from "@/interface/tours";
 import type { Page } from "@/interface/page";
 import { LANGS, DEFAULT_LANG, isValidLang } from "@/lib/i18n";
@@ -42,6 +43,8 @@ interface Props {
   isRedirect?: boolean;
   redirectTo?: string;
 }
+
+import { dedupeLocalizedDocuments } from "@/lib/utils";
 
 export async function getStaticPaths() {
   const paths: Array<{
@@ -192,8 +195,10 @@ export async function getStaticPaths() {
       locale: lang,
     });
 
-    allToursByLang[lang] = tours && Array.isArray(tours) ? tours : [];
-    allPagesByLang[lang] = pages && Array.isArray(pages) ? pages : [];
+    allToursByLang[lang] =
+      tours && Array.isArray(tours) ? dedupeLocalizedDocuments(tours) : [];
+    allPagesByLang[lang] =
+      pages && Array.isArray(pages) ? dedupeLocalizedDocuments(pages) : [];
   }
 
   const slugsByDocId: Record<string, Record<string, string>> = {};
@@ -352,9 +357,14 @@ let toursByCategory: Tour[] = [];
 
 // Tours para páginas (el middleware de tours populatea categories automáticamente)
 // Buscamos la categoría específica del destino (no "peru-tours" que es solo para agrupar)
-const pageDestinationCategory = page?.categories?.find(
-  (c: any) => c.slug !== "peru-tours"
-);
+const pageDestinationCategory =
+  page?.categories?.find((c: any) => c.slug !== "peru-tours") ??
+  (type === "page" && page?.slug
+    ? {
+        slug: page.slug,
+        nombre: page.titulo,
+      }
+    : undefined);
 
 if (type === "page" && pageDestinationCategory?.slug) {
   const response = await fetchApi<Tour[]>({

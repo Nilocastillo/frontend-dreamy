@@ -3,6 +3,7 @@ import TourLayout from "@/layouts/TourLayout.astro";
 import PageLayout from "@/layouts/PageLayout.astro";
 import Layout from "@/layouts/main.astro";
 import fetchApi from "@/lib/strapi";
+import { dedupeLocalizedDocuments } from "@/lib/utils";
 import type { Tour } from "@/interface/tours";
 import type { Page } from "@/interface/page";
 import { LANGS, DEFAULT_LANG } from "@/lib/i18n";
@@ -191,8 +192,10 @@ export async function getStaticPaths() {
       locale: lang,
     });
 
-    allToursByLang[lang] = tours && Array.isArray(tours) ? tours : [];
-    allPagesByLang[lang] = pages && Array.isArray(pages) ? pages : [];
+    allToursByLang[lang] =
+      tours && Array.isArray(tours) ? dedupeLocalizedDocuments(tours) : [];
+    allPagesByLang[lang] =
+      pages && Array.isArray(pages) ? dedupeLocalizedDocuments(pages) : [];
   }
 
   const slugsByDocId: Record<string, Record<string, string>> = {};
@@ -225,15 +228,27 @@ export async function getStaticPaths() {
         pageSlugsByDocId[page.documentId] = {};
       }
       pageSlugsByDocId[page.documentId][lang] = page.slug;
-      paths.push({
-        params: { slug: page.slug },
-        props: {
-          type: "page",
-          page,
-          pageSlugMap: pageSlugsByDocId[page.documentId] ?? {},
-        },
-      });
     }
+  }
+
+  // La ruta raíz `[slug]` es canónica para el idioma por defecto.
+  // Si generamos páginas de todos los idiomas acá, los slugs que existen
+  // en es/pt pueden pisar el `page` correcto cuando comparten el mismo slug.
+  // Eso rompe páginas como /alternative-treks, donde el contenido publicado
+  // en en sí tiene categoría, pero la variante de otro idioma no.
+  for (const page of allPagesByLang[DEFAULT_LANG] || []) {
+    if (!pageSlugsByDocId[page.documentId]) {
+      pageSlugsByDocId[page.documentId] = {};
+    }
+    pageSlugsByDocId[page.documentId][DEFAULT_LANG] = page.slug;
+    paths.push({
+      params: { slug: page.slug },
+      props: {
+        type: "page",
+        page,
+        pageSlugMap: pageSlugsByDocId[page.documentId] ?? {},
+      },
+    });
   }
 
   return paths;
@@ -301,9 +316,14 @@ let toursByCategory: Tour[] = [];
 
 // Tours para páginas (el middleware de tours populatea categories automáticamente)
 // Buscamos la categoría específica del destino (no "peru-tours" que es solo para agrupar)
-const pageDestinationCategory = page?.categories?.find(
-  (c: any) => c.slug !== "peru-tours"
-);
+const pageDestinationCategory =
+  page?.categories?.find((c: any) => c.slug !== "peru-tours") ??
+  (type === "page" && page?.slug
+    ? {
+        slug: page.slug,
+        nombre: page.titulo,
+      }
+    : undefined);
 
 if (type === "page" && pageDestinationCategory?.slug) {
   const response = await fetchApi<Tour[]>({
