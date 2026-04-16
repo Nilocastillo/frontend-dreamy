@@ -5,11 +5,13 @@ import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
-// SSG mode - all pages are static, no server adapter needed
+// SSG + SSR for API routes
 export default defineConfig({
   site: 'https://dreamy.tours',
+  adapter: cloudflare(),
 
   fonts: [
     {
