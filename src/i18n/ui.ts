@@ -10,6 +10,7 @@ export const ui = {
     "section.verTodoArticulos": "Ver todos los artículos",
     "aria.leerArticulo": "Leer artículo",
     "aria.verMasSeccion": "Ver más en esta sección",
+    "section.premiosCertificaciones": "Premios y Certificaciones",
   },
   en: {
     "tour.verItinerario": "View Itinerary",
@@ -19,6 +20,7 @@ export const ui = {
     "section.verTodoArticulos": "View all Articles",
     "aria.leerArticulo": "Read article",
     "aria.verMasSeccion": "View more in this section",
+    "section.premiosCertificaciones": "Awards and Certifications",
   },
   pt: {
     "tour.verItinerario": "Ver Itinerário",
@@ -28,6 +30,7 @@ export const ui = {
     "section.verTodoArticulos": "Ver todos os Artigos",
     "aria.leerArticulo": "Ler artigo",
     "aria.verMasSeccion": "Ver mais nesta seção",
+    "section.premiosCertificaciones": "Prêmios e Certificações",
   },
 } as const;
 

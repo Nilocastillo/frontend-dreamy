@@ -1,6 +1,7 @@
 ---
 import type { Premio } from "@/interface/home";
 import type { Lang } from "@/lib/i18n";
+import { useTranslations } from "@/i18n/ui";
 import { getImageAlt, getImageUrl } from "@/lib/helpers";
 
 interface Props {
@@ -8,7 +9,8 @@ interface Props {
   lang: Lang;
 }
 
-const { data } = Astro.props;
+const { data, lang } = Astro.props;
+const t = useTranslations(lang);
 
 const premios: Premio[] = Array.isArray(data) ? data : [];
 
@@ -20,16 +22,25 @@ const sliderData = [...premios, ...premios];
 
 <section class="slider-container mx-auto max-w-8xl px-6 py-16">
   <div class="text-center mb-10">
-    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 relative inline-block">
-      <span class="relative z-10">Premios y Certificaciones</span>
-      <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-3 bg-secondary/30 -z-0 rounded-full blur-sm" />
+    <h2
+      class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 relative inline-block"
+    >
+      <span class="relative z-10">{t("section.premiosCertificaciones")}</span>
+      <span
+        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-3 bg-secondary/30 -z-0 rounded-full blur-sm"
+      ></span>
     </h2>
     <div class="flex items-center justify-center gap-3 mt-4">
-      <div class="h-[1px] w-16 bg-gradient-to-r from-transparent to-secondary" />
-      <div class="w-12 h-1.5 bg-secondary rounded-full relative">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
+      <div class="h-[1px] w-16 bg-gradient-to-r from-transparent to-secondary">
       </div>
-      <div class="h-[1px] w-16 bg-gradient-to-l from-transparent to-secondary" />
+      <div class="w-12 h-1.5 bg-secondary rounded-full relative">
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"
+        >
+        </div>
+      </div>
+      <div class="h-[1px] w-16 bg-gradient-to-l from-transparent to-secondary">
+      </div>
     </div>
   </div>
   <div class="slider-track w-full">
@@ -40,9 +51,9 @@ const sliderData = [...premios, ...premios];
         return (
           <div class="slide" title={cert.description}>
             {imageUrl !== "/og-default.jpg" && (
-              <img 
-                src={imageUrl} 
-                alt={getImageAlt(cert.logo, cert.description)} 
+              <img
+                src={imageUrl}
+                alt={getImageAlt(cert.logo, cert.description)}
                 loading="lazy"
                 width={cert.logo?.width}
                 height={cert.logo?.height}
