@@ -1,186 +1,198 @@
 ---
 import Layout from "@/layouts/main.astro";
-import {
-  DEFAULT_LANG,
-  LANGS,
-  localizePath,
-  type Lang,
-} from "@/lib/i18n";
-
-function detectLangFromPath(pathname: string): Lang {
-  const segments = pathname.split("/").filter(Boolean);
-  const first = segments[0]?.toLowerCase();
-  if (first && LANGS.includes(first as Lang)) {
-    return first as Lang;
-  }
-  return DEFAULT_LANG;
-}
+import { DEFAULT_LANG, LANGS, type Lang } from "@/lib/i18n";
 
 /**
- * En Cloudflare Pages, cuando hay un 404, el adapter enruta a esta página
- * pero Astro.url.pathname puede devolver "/404" en lugar de la URL real que falló.
- * Astro.request.url tiene la URL REAL del request original.
+ * Esta página es ESTÁTICA (prerenderizada en build time).
+ * NO hay request real en el servidor — Cloudflare Pages sirve
+ * este HTML estático ante cualquier 404.
+ *
+ * Por eso la detección de idioma se hace 100% en el cliente,
+ * leyendo window.location.pathname.
  */
-const requestUrl = new URL(Astro.request.url);
-const lang = detectLangFromPath(requestUrl.pathname);
-const homeHref = localizePath("/", lang);
 
-const contentByLang: Record<Lang, {
+const defaultLang: Lang = DEFAULT_LANG;
+
+type ContentShape = {
   badge: string;
   title: string;
   description: string;
   primaryCta: string;
   countdownLabel: string;
-}> = {
+};
+
+const contentByLang: Record<Lang, ContentShape> = {
   en: {
     badge: "Detour in the Andes",
     title: "Lost in the mountains?",
-    description: "The page you're looking for doesn't exist or has moved. Let's get you back on the right path.",
+    description:
+      "The page you're looking for doesn't exist or has moved. Let's get you back on the right path.",
     primaryCta: "Go back home",
     countdownLabel: "Redirect in",
   },
   es: {
     badge: "Desvío en los Andes",
     title: "¿Te perdiste en la montaña?",
-    description: "La página que buscas no existe o se mudó. Te llevamos de vuelta al camino correcto.",
+    description:
+      "La página que buscas no existe o se mudó. Te llevamos de vuelta al camino correcto.",
     primaryCta: "Volver al inicio",
     countdownLabel: "Redirección en",
   },
   pt: {
     badge: "Desvio nos Andes",
     title: "Perdido nas montanhas?",
-    description: "A página que você procura não existe ou mudou de lugar. Vamos te colocar de volta no caminho certo.",
+    description:
+      "A página que você procura não existe ou mudou de lugar. Vamos te colocar de volta no caminho certo.",
     primaryCta: "Voltar ao início",
     countdownLabel: "Redirecionamento em",
   },
 };
 
-const content = contentByLang[lang];
+// El servidor siempre renderiza el idioma por defecto.
+// El cliente lo sobreescribe si detecta otro idioma en la URL.
+const fallback = contentByLang[defaultLang];
+
 const seoProps = {
-  title: `404 - ${content.title}`,
-  description: content.description,
+  title: `404 - ${fallback.title}`,
+  description: fallback.description,
   type: "website" as const,
-  lang,
+  lang: defaultLang,
   robots: "noindex, nofollow",
 };
-
-// Pasamos todo el contenido al cliente para que pueda hacer hydration
-// en caso de que el servidor no haya detectado bien el idioma
-const allContent = contentByLang;
-const validLangs = LANGS;
-const defaultLang = DEFAULT_LANG;
 ---
 
-<Layout seo={seoProps} lang={lang}>
-  <section class="relative min-h-[calc(100vh-220px)] flex items-center justify-center px-6 py-16">
+<Layout seo={seoProps} lang={defaultLang}>
+  <!--
+    Script SÍNCRONO ejecutado antes de la sección visual.
+    Detecta el idioma en el cliente desde window.location.pathname
+    y parchea el DOM apenas está listo — cero flash de idioma incorrecto.
+  -->
+  <script is:inline define:vars={{ contentByLang, validLangs: LANGS, defaultLang }}>
+    (function () {
+      function detectLang(pathname) {
+        var seg = pathname.split("/").filter(Boolean);
+        var first = (seg[0] || "").toLowerCase();
+        return validLangs.includes(first) ? first : defaultLang;
+      }
+
+      function buildHome(lang) {
+        return lang === defaultLang ? "/" : "/" + lang + "/";
+      }
+
+      var lang = detectLang(window.location.pathname);
+      var c = contentByLang[lang];
+      var home = buildHome(lang);
+
+      // Compartimos con el script de countdown
+      window.__404_lang__ = lang;
+      window.__404_home__ = home;
+
+      // Actualizamos el <html lang> inmediatamente
+      document.documentElement.lang = lang;
+
+      // Parchamos el DOM apenas esté disponible
+      function patch() {
+        var badge    = document.getElementById("404-badge");
+        var title    = document.getElementById("404-title");
+        var desc     = document.getElementById("404-desc");
+        var cta      = document.getElementById("404-cta");
+        var label    = document.getElementById("404-countdown-label");
+        var homeLink = document.getElementById("404-home-link");
+
+        if (badge)    badge.textContent = c.badge;
+        if (title)    title.textContent = c.title;
+        if (desc)     desc.textContent  = c.description;
+        if (cta)      cta.textContent   = c.primaryCta;
+        if (label)    label.textContent = c.countdownLabel;
+        if (homeLink) homeLink.href     = home;
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", patch);
+      } else {
+        patch(); // Por View Transitions: el DOM ya puede estar listo
+      }
+    })();
+  </script>
+
+  <section
+    class="relative min-h-[calc(100vh-220px)] flex items-center justify-center px-6 py-16"
+  >
     <div class="max-w-2xl w-full text-center">
+      <!-- Badge -->
       <span
-        id="badge-text"
         class="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary shadow-sm backdrop-blur"
       >
         <span class="h-2 w-2 rounded-full bg-secondary"></span>
-        {content.badge}
+        <span id="404-badge">{fallback.badge}</span>
       </span>
 
+      <!-- Copy principal -->
       <div class="mt-12 space-y-6">
-        <p class="text-sm font-semibold uppercase tracking-[0.45em] text-foreground/45">Error 404</p>
-        <h1 id="title-text" class="text-6xl md:text-8xl font-black tracking-[-0.04em] text-foreground">
-          {content.title}
+        <p
+          class="text-sm font-semibold uppercase tracking-[0.45em] text-foreground/45"
+        >
+          Error 404
+        </p>
+        <h1
+          id="404-title"
+          class="text-6xl md:text-8xl font-black tracking-[-0.04em] text-foreground"
+        >
+          {fallback.title}
         </h1>
-        <p id="description-text" class="text-lg text-foreground/70 max-w-md mx-auto">
-          {content.description}
+        <p
+          id="404-desc"
+          class="text-lg text-foreground/70 max-w-md mx-auto"
+        >
+          {fallback.description}
         </p>
       </div>
 
+      <!-- CTA -->
       <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
         <a
-          id="home-link"
-          href={homeHref}
+          id="404-home-link"
+          href="/"
           class="inline-flex items-center justify-center gap-3 rounded-full bg-secondary px-7 py-4 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/90"
         >
-          <span id="cta-text">{content.primaryCta}</span>
+          <span id="404-cta">{fallback.primaryCta}</span>
           <span aria-hidden="true">→</span>
         </a>
       </div>
 
-      <div class="mt-8 inline-flex items-center gap-3 rounded-full border border-primary/10 bg-white/75 px-4 py-3 text-sm text-foreground/70 shadow-sm backdrop-blur">
-        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">⏳</span>
+      <!-- Countdown -->
+      <div
+        class="mt-8 inline-flex items-center gap-3 rounded-full border border-primary/10 bg-white/75 px-4 py-3 text-sm text-foreground/70 shadow-sm backdrop-blur"
+      >
+        <span
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary"
+          >⏳</span
+        >
         <span>
-          <span id="countdown-label">{content.countdownLabel}</span>
-          <strong class="ml-1 font-semibold text-foreground"><span id="redirect-countdown">8</span>s</strong>
+          <span id="404-countdown-label">{fallback.countdownLabel}</span>
+          <strong class="ml-1 font-semibold text-foreground"
+            ><span id="redirect-countdown">8</span>s</strong
+          >
         </span>
       </div>
     </div>
   </section>
 
-  <script is:inline define:vars={{ homeHref, allContent, validLangs, defaultLang }}>
-    /**
-     * Hydration client-side: detectamos el idioma real desde window.location
-     * por si el servidor SSR no lo detectó correctamente (edge case en Cloudflare).
-     * Luego arrancamos el countdown hacia el home en el idioma correcto.
-     */
-    (function () {
-      function detectLangFromPath(pathname) {
-        var segments = pathname.split("/").filter(Boolean);
-        var first = (segments[0] || "").toLowerCase();
-        if (first && validLangs.includes(first)) {
-          return first;
-        }
-        return defaultLang;
-      }
-
-      function applyContent(lang) {
-        var c = allContent[lang];
-        if (!c) return;
-
-        var badge = document.getElementById("badge-text");
-        var title = document.getElementById("title-text");
-        var desc = document.getElementById("description-text");
-        var cta = document.getElementById("cta-text");
-        var countdownLabel = document.getElementById("countdown-label");
-        var homeLink = document.getElementById("home-link");
-
-        // Construir homeHref del idioma correcto en el cliente
-        var computedHome =
-          lang === defaultLang ? "/" : "/" + lang + "/";
-
-        if (badge) badge.childNodes[badge.childNodes.length - 1].textContent = " " + c.badge;
-        if (title) title.textContent = c.title;
-        if (desc) desc.textContent = c.description;
-        if (cta) cta.textContent = c.primaryCta;
-        if (countdownLabel) countdownLabel.textContent = c.countdownLabel;
-        if (homeLink) homeLink.href = computedHome;
-
-        return computedHome;
-      }
-
-      // El idioma detectado en el servidor
-      var serverLang = document.documentElement.lang || defaultLang;
-      // El idioma según el cliente (más confiable para el caso 404)
-      var clientLang = detectLangFromPath(window.location.pathname);
-
-      // Si hay discrepancia, el cliente manda
-      var finalLang = clientLang;
-      var finalHome = homeHref;
-
-      if (clientLang !== serverLang) {
-        finalHome = applyContent(clientLang) || homeHref;
-      }
-
-      // Countdown y redirect
+  <!-- Countdown + redirect — se ejecuta después del DOM -->
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", function () {
+      var home = window.__404_home__ || "/";
       var countdown = 8;
-      var countdownNode = document.getElementById("redirect-countdown");
+      var node = document.getElementById("redirect-countdown");
 
-      var intervalId = window.setInterval(function () {
+      var id = window.setInterval(function () {
         countdown -= 1;
-        if (countdownNode && countdown >= 0) {
-          countdownNode.textContent = String(countdown);
-        }
+        if (node && countdown >= 0) node.textContent = String(countdown);
         if (countdown <= 0) {
-          window.clearInterval(intervalId);
-          window.location.href = finalHome;
+          window.clearInterval(id);
+          window.location.href = home;
         }
       }, 1000);
-    })();
+    });
   </script>
 </Layout>
