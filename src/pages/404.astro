@@ -8,21 +8,25 @@ import {
   type Lang,
 } from "@/lib/i18n";
 
-const acceptLang = Astro.request.headers.get("accept-language");
-let lang: Lang = DEFAULT_LANG;
-
-if (acceptLang) {
-  const preferred = acceptLang.split(",")[0]?.split("-")[0];
-  if (isValidLang(preferred)) {
-    lang = preferred;
+function getLangFromPath(pathname: string): Lang {
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0];
+  if (firstSegment && LANGS.includes(firstSegment as Lang)) {
+    return firstSegment as Lang;
   }
+  return DEFAULT_LANG;
 }
 
-const firstSegment = Astro.url.pathname.split("/").filter(Boolean)[0];
-if (isValidLang(firstSegment)) {
-  lang = firstSegment;
+function getLangFromHeader(acceptLang: string | null): Lang {
+  if (!acceptLang) return DEFAULT_LANG;
+  const lang = acceptLang.split(",")[0]?.split("-")[0];
+  if (isValidLang(lang)) {
+    return lang;
+  }
+  return DEFAULT_LANG;
 }
 
+const lang = getLangFromPath(Astro.url.pathname);
 const homeHref = localizePath("/", lang);
 
 const contentByLang: Record<
