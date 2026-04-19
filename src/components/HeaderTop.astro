@@ -3,6 +3,7 @@ import type { HeaderTop as HeaderTopType } from "@/interface/global";
 import Button from "@/components/ui/button.astro";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Lang } from "@/lib/i18n";
+import { localizePath } from "@/lib/i18n";
 import { rewriteUrl } from "@/lib/utils";
 import { getImageUrl } from "@/lib/helpers";
 
@@ -14,7 +15,13 @@ interface Props {
 const { data, lang } = Astro.props;
 if (!data) return;
 
-const logoUrl = rewriteUrl(data.logo.url || "/", lang);
+/**
+ * El logo SIEMPRE apunta al home localizado.
+ * No usamos data.logo.url de Strapi porque puede ser una URL absoluta
+ * (empieza con "http") que rewriteUrl no localiza por diseño.
+ * localizePath garantiza: en → "/", es → "/es", pt → "/pt"
+ */
+const logoUrl = localizePath("/", lang);
 
 // Función helper para links / botones
 const getLinkProps = (

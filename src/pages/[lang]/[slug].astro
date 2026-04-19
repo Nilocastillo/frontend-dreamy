@@ -45,8 +45,6 @@ interface Props {
   redirectTo?: string;
 }
 
-import { dedupeLocalizedDocuments } from "@/lib/utils";
-
 export async function getStaticPaths() {
   const paths: Array<{
     params: { lang: string; slug: string };
